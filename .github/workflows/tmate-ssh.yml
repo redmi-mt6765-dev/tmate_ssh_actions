@@ -1,0 +1,22 @@
+name: SSH Debug via tmate
+
+on:
+  workflow_dispatch: # trigger manually
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360  # 6 hours max allowed by GitHub Actions
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Start tmate session 🧠
+        uses: mxschmitt/action-tmate@v3
+
+      - name: Wait for your debugging input 💤
+        run: |
+          echo "🔧 SSH into the runner using the link above."
+          echo "🛑 Press Ctrl+C in the SSH session to end."
+          sleep infinity
