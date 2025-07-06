@@ -12,3 +12,13 @@ This GitHub Action lets you **SSH into a live GitHub Actions runner** using [tma
 - Lets you connect via terminal to debug manually
 
 ---
+
+---
+
+### ⏹️ How To Stop
+
+```bash
+sudo touch \continue
+```
+
+---
