@@ -14,9 +14,6 @@ jobs:
 
       - name: Start tmate session 🧠
         uses: mxschmitt/action-tmate@v3
-
-      - name: Wait for your debugging input 💤
-        run: |
-          echo "🔧 SSH into the runner using the link above."
-          echo "🛑 Press Ctrl+C in the SSH session to end."
-          sleep infinity
+        with:
+          detached: true
+          limit-access-to-actor: true
