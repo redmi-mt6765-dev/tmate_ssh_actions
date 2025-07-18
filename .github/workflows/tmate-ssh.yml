@@ -13,9 +13,6 @@ jobs:
     timeout-minutes: 360  # Max 6 hours (GitHub's hard limit)
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
       - name: Start tmate session 🧠
         uses: mxschmitt/action-tmate@v3
 
