@@ -1,4 +1,4 @@
-name: SSH Debug via tmate
+name: Debug Actions
 
 on:
   workflow_dispatch: # Manually triggered from Actions tab
@@ -6,7 +6,10 @@ on:
 jobs:
   debug:
     runs-on: ubuntu-latest
-    working-directory: /home/runner
+    defaults:
+      run:
+        shell: bash
+        working-directory: /home/runner
     timeout-minutes: 360  # Max 6 hours (GitHub's hard limit)
 
     steps:
