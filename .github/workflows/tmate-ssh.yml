@@ -6,6 +6,7 @@ on:
 jobs:
   debug:
     runs-on: ubuntu-latest
+    working-directory: /home/runner
     timeout-minutes: 360  # Max 6 hours (GitHub's hard limit)
 
     steps:
@@ -16,4 +17,9 @@ jobs:
         uses: mxschmitt/action-tmate@v3
 
       - name: Sleep ♾️
-        run: sleep infinity
+        run: |
+         if [ -f /continue ]; then
+             echo "-- Done debugging!"
+         else
+             sleep infinity
+         fi
