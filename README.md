@@ -1,4 +1,4 @@
-# 🔧 SSH Debug with tmate via GitHub Actions
+# 🔧 Debug GitHub Actions
 
 This GitHub Action lets you **SSH into a live GitHub Actions runner** using [tmate.io](https://tmate.io), so you can debug failing builds, inspect file systems, test commands, or just vibe with your CI pipeline in real-time.
 
