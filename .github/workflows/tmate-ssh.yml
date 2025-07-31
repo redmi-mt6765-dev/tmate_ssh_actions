@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Import GPG (GnuPG) key 🚚
-        uses: crazy-max/ghactiotn-import-gpg@v6
+        uses: crazy-max/ghaction-import-gpg@v6.3.0
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
