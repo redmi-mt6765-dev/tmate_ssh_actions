@@ -26,7 +26,8 @@ jobs:
 
       - name: Import SSH key 🚚
         run: |
-          git clone https://techdiwas:"$TOKEN"@github.com/techdiwas/ssh-and-gpg-keys.git $HOME/tmp
+          git clone https://"$GH_PAT"@github.com/techdiwas/ssh-and-gpg-keys.git $HOME/tmp
+          mkdir -p $HOME/.ssh
           if [ -f $HOME/tmp/id_rsa ] && [ -f $HOME/tmp/id_rsa.pub ]; then
               mv $HOME/tmp/id_rsa $HOME/mv/id_rsa.pub $HOME/.ssh
               echo "-- SSH key restored."
@@ -46,7 +47,7 @@ jobs:
         env:
           USER_EMAIL: ${{ secrets.USER_EMAIL}}
           USERNAME: ${{ secrets.USERNAME }}
-          TOKEN: ${{ secrets.GH_PAT }}
+          GH_PAT: ${{ secrets.GH_PAT }}
 
       - name: Start tmate session 🧠
         uses: mxschmitt/action-tmate@v3
