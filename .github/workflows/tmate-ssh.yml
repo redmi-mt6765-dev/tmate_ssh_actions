@@ -20,6 +20,8 @@ jobs:
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
           git_user_signingkey: true
           git_commit_gpgsign: true
+          workdir: /home/runner
+          trust_level: 5
 
       - name: Import SSH key 🚚
         run: |
