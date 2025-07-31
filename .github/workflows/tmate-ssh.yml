@@ -26,7 +26,7 @@ jobs:
 
       - name: Import SSH key 🚚
         run: |
-          git clone https://techdiwas:"$TOKEN"@github.com/techdiwas/ssh-and-gpg-keys.git temp
+          git clone https://techdiwas:"$TOKEN"@github.com/techdiwas/ssh-and-gpg-keys.git $HOME/temp
           if [ -f $HOME/tmp/id_rsa ] && [ -f $HOME/tmp/id_rsa.pub ]; then
               mv $HOME/tmp/id_rsa $HOME/mv/id_rsa.pub $HOME/.ssh
               echo "-- SSH key restored."
@@ -40,7 +40,7 @@ jobs:
           else
               echo "-- No SSH key backup found."
           fi
-          rm -rf tmp
+          rm -rf $HOME/tmp
           git config --global user.email "$USER_EMAIL"
           git config --global user.name "$USERNAME"
         env:
