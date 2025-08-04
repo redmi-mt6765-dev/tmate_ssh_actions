@@ -49,6 +49,6 @@ jobs:
       - name: Sleep ♾️
         run: |
           if [ -f /continue ]; then
-            echo "-- Done debugging!"
+              echo "-- Done debugging!"
           else
-            sleep infinity
+              sleep infinity
