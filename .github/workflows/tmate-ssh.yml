@@ -52,3 +52,4 @@ jobs:
               echo "-- Done debugging!"
           else
               sleep infinity
+          fi
