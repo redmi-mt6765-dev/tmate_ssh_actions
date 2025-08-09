@@ -1,49 +1,79 @@
 name: Debug Actions
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: # Manual trigger
 
 jobs:
   debug:
     runs-on: ubuntu-latest
-    timeout-minutes: 360 # Max GitHub limit
+    timeout-minutes: 360 # Max 6 hours
+
+    env:
+      USERNAME: ${{ secrets.USERNAME }}
+      USER_EMAIL: ${{ secrets.USER_EMAIL }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+      GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
     steps:
-      - name: Configure Git User
+      - name: Install prerequisites
         run: |
-          git config --global user.name "${{ secrets.USERNAME }}"
-          git config --global user.email "${{ secrets.USER_EMAIL }}"
+          sudo apt-get update
+          sudo apt-get install -y tmate tmux gnupg2 pinentry-curses
 
-      - name: Import SSH Key
+      - name: Configure Git user
+        run: |
+          git config --global user.name "${USERNAME}"
+          git config --global user.email "${USER_EMAIL}"
+
+      - name: Import SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           eval "$(ssh-agent -s)"
           ssh-add ~/.ssh/id_ed25519
-          echo "SSH key configured."
 
-      - name: Import GPG Key
+      - name: Import GPG private key
         run: |
-          echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
-          GPG_KEY_ID=$(gpg --list-secret-keys --keyid-format=long | awk '/sec/{print $2}' | cut -d'/' -f2 | head -n1)
+          # Import GPG key and trust it locally
+          echo "${GPG_PRIVATE_KEY}" | gpg --batch --import
+
+          # Extract key ID
+          GPG_KEY_ID=$(gpg --list-secret-keys --keyid-format LONG | awk '/sec/{print $2}' | cut -d'/' -f2 | head -n1)
+
+          # Trust the key (auto-trust in batch mode)
+          echo -e "5\ny\n" | gpg --command-fd 0 --edit-key "$GPG_KEY_ID" trust
+
+          # Configure git to use GPG key for signing
           git config --global user.signingkey "$GPG_KEY_ID"
           git config --global commit.gpgsign true
-          echo "GPG key configured for signing."
 
-      - name: Start persistent tmate session
+          # Configure GPG for passphrase usage in CI
+          echo "use-agent" >> ~/.gnupg/gpg.conf
+          echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
+
+      - name: Cache GPG passphrase (so signing won’t prompt)
         run: |
-          sudo apt-get update
-          sudo apt-get install -y tmate
-          tmate -F -k &
-          sleep 5
-          tmate show-messages
-          echo "Tmate session started."
-          
-          echo "Type 'touch /stop' inside the tmate shell to end session."
+          echo "${GPG_PASSPHRASE}" | gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 --sign --detach-sign --armor <<< "test"
+
+      - name: Start persistent tmux + tmate session
+        run: |
+          SESSION="debug-session"
+          tmux has-session -t $SESSION 2>/dev/null || tmux new-session -d -s $SESSION
+
+          if ! tmux list-panes -t $SESSION | grep -q tmate; then
+            tmux send-keys -t $SESSION "tmate -F" C-m
+            sleep 5
+          fi
+
+          tmux capture-pane -pt $SESSION -S -20 | grep ssh || echo "No tmate SSH URL found yet"
+
+          echo "Connect using the above SSH URL."
+
           while true; do
             if [ -f /stop ]; then
-              echo "Stop signal received. Ending workflow..."
+              echo "Stop file detected, shutting down."
               pkill tmate || true
               break
             fi
